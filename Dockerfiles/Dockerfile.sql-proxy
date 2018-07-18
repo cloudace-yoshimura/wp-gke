@@ -1,0 +1,8 @@
+FROM gcr.io/cloudsql-docker/gce-proxy:1.11
+LABEL maintainer "kuramochi@cloud-ace.jp"
+
+VOLUME ./cloudsql ./cloudsql
+COPY ./config/mysql ./config
+EXPOSE 3306
+ENTRYPOINT ["/cloud_sql_proxy"]
+CMD ["-instances=kuramochi-develop:us-central1:wordpress-gke-demo=tcp:0.0.0.0:3306", "-credential_file=./config/kuramochi-develop-9e6430e53101.json", "-dir=./cloudsql"]

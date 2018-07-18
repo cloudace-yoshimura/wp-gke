@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+  wordpress:
+    container_name: wordpress
+    depends_on:
+      - "sql-proxy"
+    build:
+      context: .
+      dockerfile: ./Dockerfiles/Dockerfile.wordpress
+    ports:
+      - "127.0.0.1:80:80"
+      - "127.0.0.1:443:443"
+
+  sql-proxy:
+    container_name: mysql-proxy
+    build:
+      context: .
+      dockerfile: ./Dockerfiles/Dockerfile.sql-proxy
+    ports:
+      - "127.0.0.1:3306:3306"

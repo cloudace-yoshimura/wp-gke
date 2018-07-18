@@ -1,0 +1,9 @@
+FROM wordpress:latest
+LABEL maintainer "kuramochi@cloud-ace.jp"
+
+EXPOSE 80 443
+# サイト毎にDBを変更する必要があるので1サイト1Dockerfileになるかな?
+ENV WORDPRESS_DB_HOST=mysql-proxy:3306
+ENV WORDPRESS_DB_USER=wordpress-gke
+ENV WORDPRESS_DB_PASSWORD=wordpress-gke
+ENV WORDPRESS_DB_NAME=wordpress

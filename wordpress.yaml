@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress-service
+  labels:
+    app: wordpress-service
+spec:
+  ports:
+  - port: 80
+    name: wordpress-service
+  selector:
+    app: wordpress-service
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: wordpress
+spec:
+  selector:
+    matchLabels:
+      app: wordpress
+  serviceName: "wordpress-service"
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+      - name: wordpress
+        image: gcr.io/kuramochi-develop/wordpress:e4c91a36a4bb4fa842b4a2dc54cfd2fd76ec12d7
+        ports:
+        - containerPort: 80
+          name: wordpress
+        volumeMounts:
+        - name: wordpress-volume
+          mountPath: /var/www/html
+  volumeClaimTemplates:
+  - metadata:
+      name: wordpress-volume
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: my-storage-class
+      resources:
+        requests:
+          storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-proxy-service
+  labels:
+    app: mysql-proxy-service
+    tier: backend
+    role: db
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mysql-proxy
+    tier: backend
+    role: db
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql-proxy
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql-proxy
+        tier: backend
+        role: db
+    spec:
+      containers:
+      - name: mysql-proxy
+        image: gcr.io/kuramochi-develop/mysql-proxy:e4c91a36a4bb4fa842b4a2dc54cfd2fd76ec12d7
+        ports:
+        - containerPort: 3306
